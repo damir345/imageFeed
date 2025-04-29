@@ -65,6 +65,23 @@ extension ImagesListViewController {
         let likeImageName = (indexPath.row + 1) % 2 == 0 ? "LikeButtonOn" : "LikeButtonOff"
         let likeImage = UIImage(named: likeImageName)
         cell.likeButton.setImage(likeImage, for: .normal)
+        
+        addGradientToBackground(with: cell)
+    }
+    
+    private func addGradientToBackground(with cell: ImagesListCell) {
+        let gradient = CAGradientLayer()
+        gradient.frame = cell.gradientView.bounds
+        gradient.colors = [UIColor.black.withAlphaComponent(0.3).cgColor,
+                           UIColor.clear.cgColor]
+        gradient.startPoint = CGPoint(x: 0, y: 1)
+        gradient.endPoint = CGPoint(x: 0, y: 0)
+        
+        cell.gradientView.layer.cornerRadius = 16
+        cell.gradientView.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        cell.gradientView.clipsToBounds = true // обязательно, чтобы скругление было видно
+        
+        cell.gradientView.layer.insertSublayer(gradient, at: 0)
     }
 }
 

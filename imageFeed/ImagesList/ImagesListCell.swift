@@ -16,4 +16,7 @@ final class ImagesListCell: UITableViewCell {
     @IBOutlet weak var myImageView: UIImageView!
     
     @IBOutlet weak var uploadDate: UILabel!
+    
+    @IBOutlet weak var gradientView: UIView!
+    
 }
