@@ -9,21 +9,7 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
-//    @IBOutlet private var avatarImageView: UIImageView!
-//    
-//    @IBOutlet private var nameLabel: UILabel!
-//    
-//    @IBOutlet private var loginNameLabel: UILabel!
-//    
-//    @IBOutlet private var descriptionLabel: UILabel!
-//    
-//    
-//    @IBOutlet private var logoutButton: UIButton!
-//    
-//    @IBAction private func didTapLogoutButton(_ sender: UIButton) {
-//    }
-    
-    private let avatarImageView: UIImageView = {
+    private lazy var avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "avatar")
         imageView.contentMode = .scaleAspectFill
@@ -33,7 +19,7 @@ final class ProfileViewController: UIViewController {
         return imageView
     }()
 
-    private let nameLabel: UILabel = {
+    private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.text = "Екатерина Новикова"
         label.font = UIFont.boldSystemFont(ofSize: 23)
@@ -42,7 +28,7 @@ final class ProfileViewController: UIViewController {
         return label
     }()
 
-    private let loginLabel: UILabel = {
+    private lazy var loginLabel: UILabel = {
         let label = UILabel()
         label.text = "@ekaterina_nov"
         label.font = UIFont.systemFont(ofSize: 13)
@@ -51,7 +37,7 @@ final class ProfileViewController: UIViewController {
         return label
     }()
 
-    private let descriptionLabel: UILabel = {
+    private lazy var descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = "Hello, world!"
         label.font = UIFont.systemFont(ofSize: 13)
@@ -60,7 +46,7 @@ final class ProfileViewController: UIViewController {
         return label
     }()
 
-    private let logoutButton: UIButton = {
+    private lazy var logoutButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "logout_button"), for: .normal)
         button.tintColor = .systemRed
