@@ -1,0 +1,23 @@
+//
+//  OAuthTokenResponseBody.swift
+//  imageFeed
+//
+//  Created by Damir Salakhetdinov on 30/05/25.
+//
+
+import Foundation
+
+struct OAuthTokenResponseBody: Decodable {
+    let accessToken: String
+    let tokenType: String
+    let scope: String
+    let createdAt: Int
+
+    // Соответствие названиям полей в JSON от Unsplash
+    private enum CodingKeys: String, CodingKey {
+        case accessToken = "access_token"
+        case tokenType   = "token_type"
+        case scope
+        case createdAt   = "created_at"
+    }
+}

@@ -44,14 +44,13 @@ final class AuthViewController: UIViewController {
 }
 
 extension AuthViewController: WebViewViewControllerDelegate {
-    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code2: String) {
+    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
 
-        let completion2: (Result<String, Error>) -> Void = { result in
+        let authTokenFetched: (Result<String, Error>) -> Void = { result in
             switch result {
             case .success(let token):
 
-                //print("Получен токен: \(token)")
-                vc.accessToken.token = token
+                OAuth2TokenStorage.shared.token = token
                 self.switchToTabBarController()
 
             case .failure(let error):
@@ -59,7 +58,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
             }
         }
         
-        OAuth2Service.shared.fetchOAuthToken(code: code2, completion: completion2)
+        OAuth2Service.shared.fetchOAuthToken(code, completion: authTokenFetched)
         
     }
 
@@ -69,7 +68,11 @@ extension AuthViewController: WebViewViewControllerDelegate {
     
     private func switchToTabBarController() {
         DispatchQueue.main.async {
-            guard let window = UIApplication.shared.windows.first else { fatalError("Invalid Configuration") }
+            guard let window = UIApplication.shared.windows.first else
+            {
+                assertionFailure("Invalid Configuration")
+                return
+            }
             let tabBarController = UIStoryboard(name: "Main", bundle: .main)
                 .instantiateViewController(withIdentifier: "TabBarViewController")
             window.rootViewController = tabBarController

@@ -19,12 +19,12 @@ protocol WebViewViewControllerDelegate: AnyObject {
 
 final class WebViewViewController: UIViewController, WKNavigationDelegate {
     
+    let progressBarVisibilityThreshold = 0.0001
+    
     @IBOutlet private var webView: WKWebView!
 
     @IBOutlet private var progressView: UIProgressView!
     
-    var accessToken = OAuth2TokenStorage()
-
     weak var delegate: WebViewViewControllerDelegate?
     
     override func viewDidLoad() {
@@ -53,23 +53,34 @@ final class WebViewViewController: UIViewController, WKNavigationDelegate {
         super.viewWillDisappear(animated)
         webView.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), context: nil)
     }
-
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) {
-            updateProgress()
-        } else {
-            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+    
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
+        guard keyPath == #keyPath(WKWebView.estimatedProgress) else {
+            super.observeValue(
+                forKeyPath: keyPath,
+                of: object,
+                change: change,
+                context: context
+            )
+            return
         }
+
+        updateProgress()
     }
 
     private func updateProgress() {
         progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= progressBarVisibilityThreshold
     }
-    
     
     private func loadAuthView() {
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
+            print("Ошибка создания URLComponents для '\(WebViewConstants.unsplashAuthorizeURLString)'")
             return
         }
         
@@ -81,6 +92,7 @@ final class WebViewViewController: UIViewController, WKNavigationDelegate {
         ]
         
         guard let url = urlComponents.url else {
+            print("Ошибка получения значения свойства url объекта класса URLComponents")
             return
         }
         
