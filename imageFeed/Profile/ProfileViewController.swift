@@ -6,12 +6,16 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
+    
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     private lazy var avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "avatar")
+        
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 35
         imageView.clipsToBounds = true
@@ -57,6 +61,64 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
+        
+        self.nameLabel.text = ProfileService.shared.profile?.name
+        self.loginLabel.text = ProfileService.shared.profile?.loginName
+        self.descriptionLabel.text = ProfileService.shared.profile?.bio
+        
+        let urlForImage = String(describing: ProfileImageService.shared.avatarURL)
+        print("Image URL = \(urlForImage)")
+        
+        profileImageServiceObserver = NotificationCenter.default    // 2
+                    .addObserver(
+                        forName: ProfileImageService.didChangeNotification, // 3
+                        object: nil,                                        // 4
+                        queue: .main                                        // 5
+                    ) { [weak self] _ in
+                        guard let self = self else { return }
+                        self.updateAvatar()                                 // 6
+                    }
+                updateAvatar()
+        
+    }
+    
+    private func updateAvatar() {                                   // 8
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL
+            //let url = URL(string: profileImageURL)
+        else { return }
+
+        let processor = RoundCornerImageProcessor(cornerRadius: 20)
+
+        let imageView = avatarImageView
+        let imageUrl = URL(string: profileImageURL)!
+        imageView.kf.indicatorType = .activity
+        imageView.kf.setImage(with: imageUrl,
+                               placeholder: UIImage(named: "placeholder.jpeg"),
+                               options: [
+                                 .processor(processor)
+                               ]) { result in
+                                   
+                                   switch result {
+                                       // Успешная загрузка
+                                   case .success(let value):
+                                       // Картинка
+                                       print(value.image)
+                                       
+                                       // Откуда картинка загружена:
+                                       // - .none — из сети.
+                                       // - .memory — из кэша оперативной памяти.
+                                       // - .disk — из дискового кэша.
+                                       print(value.cacheType)
+                                       
+                                       // Информация об источнике.
+                                       print(value.source)
+                                       
+                                       // В случае ошибки
+                                   case .failure(let error):
+                                       print(error)
+                                   }
+                               }
     }
 
     private func setupLayout() {
