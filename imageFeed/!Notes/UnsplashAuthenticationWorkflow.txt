@@ -1,0 +1,51 @@
+
+AuthViewController: Optional("ShowWebView")
+WebViewViewController: View Did Load Enter...
+WebViewViewController: View Did Load Call loadAuthView...
+LoadAuthView requesting OAuth2Token
+WebViewViewController: View Did Load Call updateProgress...
+WebViewViewController: View Did Load Exit...
+WebViewViewController: ViewWillAppear...
+WebViewViewController: View Is Appearing...
+C = 1, NavA = <WKNavigationAction: 0x106885c00; navigationType = -1; syntheticClickType = 0; position x = 0.00 y = 0.00 request = <NSMutableURLRequest: 0x6000000094f0> { URL: https://unsplash.com/oauth/authorize?client_id=1yADKLIFNF8xtYZn4p-occb_SU9llBEXAgMGZOTbzUs&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=public+read_user+write_likes }; sourceFrame = (null); targetFrame = <WKFrameInfo: 0x107097230; webView = 0x106847800; isMainFrame = YES; request = <NSMutableURLRequest: 0x600000009480> { URL:  }>>
+2
+WebViewViewController: View Did Appear...
+C = 2, NavA = <WKNavigationAction: 0x10784d400; navigationType = -1; syntheticClickType = 0; position x = 0.00 y = 0.00 request = <NSMutableURLRequest: 0x60000000ce80> { URL: https://unsplash.com/oauth/authorize/native?code=hugKMToxqBp-qe-sCufn5-tjADL__TGLC5hroMFrGng }; sourceFrame = <WKFrameInfo: 0x10721be10; webView = 0x106847800; isMainFrame = YES; request = <NSMutableURLRequest: 0x60000000c9d0> { URL:  }>; targetFrame = <WKFrameInfo: 0x10721be10; webView = 0x106847800; isMainFrame = YES; request = <NSMutableURLRequest: 0x60000000c9d0> { URL:  }>>
+AuthViewController.webViewViewController: code = hugKMToxqBp-qe-sCufn5-tjADL__TGLC5hroMFrGng
+OAuth2Service.fetchOAuthToken: code = hugKMToxqBp-qe-sCufn5-tjADL__TGLC5hroMFrGng
+OAuth2Service.makeOAuthTokenRequest: code = hugKMToxqBp-qe-sCufn5-tjADL__TGLC5hroMFrGng
+OAuth2Service.makeOAuthTokenRequest: code = hugKMToxqBp-qe-sCufn5-tjADL__TGLC5hroMFrGng
+1
+0x108011418 - [pageProxyID=6, webPageID=7, PID=16051] WebPageProxy::didFailProvisionalLoadForFrame: frameID=1, isMainFrame=1, domain=WebKitErrorDomain, code=102, isMainFrame=1, willInternallyHandleFailure=0
+AuthViewController.authTokenFetched
+AuthViewController.switchToTabBarController
+
+
+=====
+
+View Did Load...
+
+ViewWillAppear...
+
+View Is Appearing...
+
+WebContent process (0x11201c680) took 24.224967 seconds to launch
+C = 1, NavA = <WKNavigationAction: 0x1028b5400; navigationType = -1; syntheticClickType = 0; position x = 0.00 y = 0.00 request = <NSMutableURLRequest: 0x6000000111a0> {
+
+ URL: https://unsplash.com/oauth/authorize?client_id=1yADKLIFNF8xtYZn4p-occb_SU9llBEXAgMGZOTbzUs&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=public+read_user+write_likes };
+
+ sourceFrame = (null); targetFrame = <WKFrameInfo: 0x101c04b60; webView = 0x10283f600; isMainFrame = YES; request = <NSMutableURLRequest: 0x6000000110e0> { URL:  }>>
+2
+
+0x10500c7a0 - ProcessThrottlerTimedActivity::activityTimedOut:
+
+View Did Appear...
+
+C = 2, NavA = <WKNavigationAction: 0x103808200; navigationType = -1; syntheticClickType = 0; position x = 0.00 y = 0.00 request = <NSMutableURLRequest: 0x6000000140a0> {
+
+ URL: https://unsplash.com/oauth/authorize/native?code=V4Ed4nyGl8yFRuAqk9R0iygVORp9VXVXylrxBNJQzZQ };
+
+ sourceFrame = <WKFrameInfo: 0x101e0ad20; webView = 0x10283f600; isMainFrame = YES; request = <NSMutableURLRequest: 0x600000014000> { URL:  }>; targetFrame = <WKFrameInfo: 0x101e0ad20; webView = 0x10283f600; isMainFrame = YES; request = <NSMutableURLRequest: 0x600000014000> { URL:  }>>
+1
+
+
