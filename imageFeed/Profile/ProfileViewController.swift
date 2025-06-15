@@ -69,56 +69,43 @@ final class ProfileViewController: UIViewController {
         let urlForImage = String(describing: ProfileImageService.shared.avatarURL)
         print("Image URL = \(urlForImage)")
         
-        profileImageServiceObserver = NotificationCenter.default    // 2
+        profileImageServiceObserver = NotificationCenter.default
                     .addObserver(
-                        forName: ProfileImageService.didChangeNotification, // 3
-                        object: nil,                                        // 4
-                        queue: .main                                        // 5
+                        forName: ProfileImageService.didChangeNotification,
+                        object: nil,
+                        queue: .main
                     ) { [weak self] _ in
                         guard let self = self else { return }
-                        self.updateAvatar()                                 // 6
+                        self.updateAvatar()
                     }
                 updateAvatar()
         
     }
     
-    private func updateAvatar() {                                   // 8
+    private func updateAvatar() {
         guard
             let profileImageURL = ProfileImageService.shared.avatarURL
             //let url = URL(string: profileImageURL)
         else { return }
-
-        let processor = RoundCornerImageProcessor(cornerRadius: 20)
-
+        
         let imageView = avatarImageView
-        let imageUrl = URL(string: profileImageURL)!
+        guard let imageUrl = URL(string: profileImageURL) else {
+            print("[ProfileViewController.updateAvatar]: Failed to get profileImageURL = \(profileImageURL)")
+            return
+        }
         imageView.kf.indicatorType = .activity
         imageView.kf.setImage(with: imageUrl,
-                               placeholder: UIImage(named: "placeholder.jpeg"),
-                               options: [
-                                 .processor(processor)
-                               ]) { result in
-                                   
-                                   switch result {
-                                       // Успешная загрузка
-                                   case .success(let value):
-                                       // Картинка
-                                       print(value.image)
-                                       
-                                       // Откуда картинка загружена:
-                                       // - .none — из сети.
-                                       // - .memory — из кэша оперативной памяти.
-                                       // - .disk — из дискового кэша.
-                                       print(value.cacheType)
-                                       
-                                       // Информация об источнике.
-                                       print(value.source)
-                                       
-                                       // В случае ошибки
-                                   case .failure(let error):
-                                       print(error)
-                                   }
-                               }
+                               placeholder: UIImage(named: "placeholder.jpeg")
+                                ){ result in
+                                switch result {
+                                case .success(let value):
+                                    print(value.image)
+                                    print(value.cacheType)
+                                    print(value.source)
+                                case .failure(let error):
+                                    print(error)
+                                }
+                            }
     }
 
     private func setupLayout() {

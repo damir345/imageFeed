@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import ProgressHUD
 
 protocol AuthViewControllerDelegate: AnyObject {
     func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String)
@@ -49,18 +48,6 @@ final class AuthViewController: UIViewController {
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack") // 4
     }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        DispatchQueue.main.async {
-            guard let window = UIApplication.shared.windows.first else
-            {
-                assertionFailure("Invalid Configuration")
-                return
-            }
-        }
-    }
 }
 
 extension AuthViewController: WebViewViewControllerDelegate {
@@ -77,24 +64,21 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 UIBlockingProgressHUD.dismiss()
                 
                 switch result {
-                case .success(let token):
-                    
-                    OAuth2TokenStorage.shared.token = token
-                    
-                    self.switchToTabBarController()
-                    
-                case .failure(let error):
-                    print("Ошибка: \(error)")
-                    
-                    // Показ UIAlertController с ошибкой
-                    let alert = UIAlertController(
-                        title: "Что-то пошло не так",
-                        message: "Не удалось войти в систему",
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: "Ок", style: .default, handler: nil))
-                    self.present(alert, animated: true)
-                }
+                    case .success(let token):
+                        OAuth2TokenStorage.shared.token = token
+                        self.switchToTabBarController()
+                    case .failure(let error):
+                        print("Ошибка: \(error)")
+                        
+                        // Показ UIAlertController с ошибкой
+                        let alert = UIAlertController(
+                            title: "Что-то пошло не так(",
+                            message: "Не удалось войти в систему",
+                            preferredStyle: .alert
+                        )
+                        alert.addAction(UIAlertAction(title: "Ок", style: .default, handler: nil))
+                        self.present(alert, animated: true)
+                    }
             }
         }
         

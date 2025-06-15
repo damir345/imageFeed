@@ -7,50 +7,44 @@
 
 import Foundation
 
-struct UserResult: Codable {
-    let profileImage: ProfileImage
-
-    enum CodingKeys: String, CodingKey {
-        case profileImage = "profile_image"
-    }
-}
-
-struct ProfileImage: Codable {
-    let small: String
-}
-
 final class ProfileImageService {
     
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
     
     static let shared = ProfileImageService()
     private init() {}
-
+    
     private var task: URLSessionTask?
     private var lastUsername: String?
     private(set) var avatarURL: String?
-
+    
     func fetchProfileImageURL(_ username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
         if lastUsername == username { return }
-
+        
         task?.cancel()
         lastUsername = username
-
+        
         guard let token = OAuth2TokenStorage.shared.token else {
             print("[ProfileImageService.fetchProfileImageURL]: Failure - token not found")
             return
         }
-
-        var request = URLRequest(url: makeURL(username: username))
+        
+        let getUsernameURL = "\(Constants.getUsernameURL)\(username)"
+        guard let url = URL(string: getUsernameURL) else {
+            print("[ProfileImageService.fetchProfileImageURL]: Error while making URL user username = \(username)")
+            return
+        }
+        
+        var request = URLRequest(url: url)
         request.httpMethod = String(describing: HTTPMethod.get)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-
+        
         let task = URLSession.shared.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.task = nil
                 self.lastUsername = nil
-
+                
                 switch result {
                 case .success(let userResult):
                     let avatarURL = userResult.profileImage.small
@@ -67,12 +61,8 @@ final class ProfileImageService {
                 }
             }
         }
-
+        
         self.task = task
         task.resume()
-    }
-
-    private func makeURL(username: String) -> URL {
-        return URL(string: "https://api.unsplash.com/users/\(username)")!
     }
 }

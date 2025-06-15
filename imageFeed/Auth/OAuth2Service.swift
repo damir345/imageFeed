@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import ProgressHUD
 
 final class OAuth2Service {
     

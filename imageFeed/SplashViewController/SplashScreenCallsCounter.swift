@@ -12,6 +12,6 @@ final class SplashScreenCallsCounter: Decodable {
     static let shared = SplashScreenCallsCounter()
     private init() {}
     
-    var Counter: Int = 0
+    var callsCounter: Int = 0
     
 }

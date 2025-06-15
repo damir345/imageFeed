@@ -17,10 +17,6 @@ final class TabBarController: UITabBarController {
             withIdentifier: "ImagesListViewController"
         )
         
-//        let profileViewController = storyboard.instantiateViewController(
-//            withIdentifier: "ProfileViewController"
-//        )
-        
         let profileViewController = ProfileViewController()
         
         profileViewController.view.backgroundColor = UIColor.ypBlack
@@ -33,5 +29,4 @@ final class TabBarController: UITabBarController {
         
         self.viewControllers = [imagesListViewController, profileViewController]
     }
-    
 }

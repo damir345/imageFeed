@@ -29,10 +29,14 @@ final class SplashViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        if SplashScreenCallsCounter.shared.Counter == 0 {
-            OAuth2TokenStorage.shared.clearToken()
-        }
-        SplashScreenCallsCounter.shared.Counter += 1
+//        Этот код используется в режиме отладки для проверки функции авторизации,
+//        поэтому я оставил его здесь в комментарии
+//
+//        if SplashScreenCallsCounter.shared.callsCounter == 0 {
+//            OAuth2TokenStorage.shared.clearToken()
+//        }
+//        SplashScreenCallsCounter.shared.callsCounter += 1
+        
         if OAuth2TokenStorage.shared.token != nil {
             switchToTabBarController()
         } else {
