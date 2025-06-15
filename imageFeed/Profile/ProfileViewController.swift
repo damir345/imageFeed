@@ -6,12 +6,16 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
+    
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     private lazy var avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "avatar")
+        
         imageView.contentMode = .scaleAspectFill
         imageView.layer.cornerRadius = 35
         imageView.clipsToBounds = true
@@ -57,6 +61,51 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
+        
+        self.nameLabel.text = ProfileService.shared.profile?.name
+        self.loginLabel.text = ProfileService.shared.profile?.loginName
+        self.descriptionLabel.text = ProfileService.shared.profile?.bio
+        
+        let urlForImage = String(describing: ProfileImageService.shared.avatarURL)
+        print("Image URL = \(urlForImage)")
+        
+        profileImageServiceObserver = NotificationCenter.default
+                    .addObserver(
+                        forName: ProfileImageService.didChangeNotification,
+                        object: nil,
+                        queue: .main
+                    ) { [weak self] _ in
+                        guard let self = self else { return }
+                        self.updateAvatar()
+                    }
+                updateAvatar()
+        
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL
+            //let url = URL(string: profileImageURL)
+        else { return }
+        
+        let imageView = avatarImageView
+        guard let imageUrl = URL(string: profileImageURL) else {
+            print("[ProfileViewController.updateAvatar]: Failed to get profileImageURL = \(profileImageURL)")
+            return
+        }
+        imageView.kf.indicatorType = .activity
+        imageView.kf.setImage(with: imageUrl,
+                               placeholder: UIImage(named: "placeholder.jpeg")
+                                ){ result in
+                                switch result {
+                                case .success(let value):
+                                    print(value.image)
+                                    print(value.cacheType)
+                                    print(value.source)
+                                case .failure(let error):
+                                    print(error)
+                                }
+                            }
     }
 
     private func setupLayout() {
