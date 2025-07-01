@@ -66,6 +66,8 @@ final class ProfileViewController: UIViewController {
         self.loginLabel.text = ProfileService.shared.profile?.loginName
         self.descriptionLabel.text = ProfileService.shared.profile?.bio
         
+        logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
+        
         let urlForImage = String(describing: ProfileImageService.shared.avatarURL)
         print("Image URL = \(urlForImage)")
         
@@ -138,5 +140,20 @@ final class ProfileViewController: UIViewController {
             logoutButton.widthAnchor.constraint(equalToConstant: 24),
             logoutButton.heightAnchor.constraint(equalToConstant: 24)
         ])
+    }
+    
+    @objc private func logoutButtonTapped() {
+        let alert = UIAlertController(
+            title: "До свидания!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Нет", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Да", style: .destructive) { _ in
+            ProfileLogoutService.shared.logout()
+        })
+        
+        present(alert, animated: true)
     }
 }

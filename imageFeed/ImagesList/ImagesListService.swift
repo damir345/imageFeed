@@ -10,7 +10,6 @@ import UIKit
 
 final class ImagesListService {
     static let shared = ImagesListService()
-    
     static let didChangeNotification = Notification.Name("ImagesListServiceDidChange")
     
     private(set) var photos: [Photo] = []
@@ -18,7 +17,9 @@ final class ImagesListService {
     private var isLoading: Bool = false
     private let perPage = 10
     private let session = URLSession.shared
-    private let accessToken = OAuth2TokenStorage.shared.token
+    private var accessToken: String? {
+        OAuth2TokenStorage.shared.token
+    }
 
     private init() {}
 
@@ -27,45 +28,45 @@ final class ImagesListService {
         isLoading = true
 
         let nextPage = (lastLoadedPage ?? 0) + 1
-        
-        // Собираем URL безопасно
+
         var components = URLComponents(string: "https://api.unsplash.com/photos")
         components?.queryItems = [
             URLQueryItem(name: "page", value: "\(nextPage)"),
             URLQueryItem(name: "per_page", value: "\(perPage)")
         ]
-        
+
         guard let url = components?.url else {
-            print("Не удалось создать URL")
+            print("[ImagesListService.fetchPhotosNextPage]: failedToConstructURL page=\(nextPage)")
             isLoading = false
             return
         }
-        
+
         guard let token = accessToken else {
-            print("Access token отсутствует")
+            print("[ImagesListService.fetchPhotosNextPage]: noToken page=\(nextPage)")
+            isLoading = false
             return
         }
 
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
+
         let task = session.dataTask(with: request) { [weak self] data, response, error in
             guard let self else { return }
             defer { self.isLoading = false }
-            
+
             if let error = error {
-                print("Ошибка загрузки фотографий: \(error.localizedDescription)")
+                print("[ImagesListService.fetchPhotosNextPage]: networkError \(error.localizedDescription) page=\(nextPage)")
                 return
             }
-            
+
             guard let data = data else {
-                print("Нет данных от сервера")
+                print("[ImagesListService.fetchPhotosNextPage]: noData page=\(nextPage)")
                 return
             }
 
             do {
                 let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                //decoder.keyDecodingStrategy = .convertFromSnakeCase
                 let photoResults = try decoder.decode([PhotoResult].self, from: data)
 
                 let newPhotos: [Photo] = photoResults.map { result in
@@ -87,13 +88,81 @@ final class ImagesListService {
                     self.lastLoadedPage = nextPage
                     NotificationCenter.default.post(name: Self.didChangeNotification, object: self)
                 }
-
             } catch {
-                print("Ошибка декодирования: \(error.localizedDescription)")
+                let responseString = String(data: data, encoding: .utf8) ?? "nil"
+                print("[ImagesListService.fetchPhotosNextPage]: decodingError \(error.localizedDescription) page=\(nextPage) response=\(responseString)")
             }
         }
-        
+
+        task.resume()
+    }
+
+    func reset() {
+        photos = []
+    }
+
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let token = accessToken else {
+            print("[ImagesListService.changeLike]: noToken photoId=\(photoId)")
+            completion(.failure(NSError(domain: "NoToken", code: 401, userInfo: nil)))
+            return
+        }
+
+        let urlString = "https://api.unsplash.com/photos/\(photoId)/like"
+        guard let url = URL(string: urlString) else {
+            print("[ImagesListService.changeLike]: badURL photoId=\(photoId)")
+            completion(.failure(NSError(domain: "BadURL", code: 400, userInfo: nil)))
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = isLike ? "POST" : "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let task = session.dataTask(with: request) { [weak self] data, response, error in
+            guard let self else { return }
+
+            if let error = error {
+                print("[ImagesListService.changeLike]: networkError \(error.localizedDescription) photoId=\(photoId) isLike=\(isLike)")
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse,
+                  200..<300 ~= httpResponse.statusCode else {
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+                print("[ImagesListService.changeLike]: badStatusCode code=\(statusCode) photoId=\(photoId) isLike=\(isLike)")
+                let error = NSError(domain: "BadStatusCode", code: statusCode, userInfo: nil)
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+                return
+            }
+
+            DispatchQueue.main.async {
+                if let index = self.photos.firstIndex(where: { $0.id == photoId }) {
+                    let photo = self.photos[index]
+                    let newPhoto = Photo(
+                        id: photo.id,
+                        size: photo.size,
+                        createdAt: photo.createdAt,
+                        welcomeDescription: photo.welcomeDescription,
+                        thumbImageURL: photo.thumbImageURL,
+                        largeImageURL: photo.largeImageURL,
+                        isLiked: !photo.isLiked
+                    )
+                    self.photos = self.photos.withReplaced(itemAt: index, newValue: newPhoto)
+                    NotificationCenter.default.post(name: Self.didChangeNotification, object: self)
+                }
+
+                completion(.success(()))
+            }
+        }
+
         task.resume()
     }
 }
+
 

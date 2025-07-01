@@ -22,8 +22,3 @@ struct PhotoResult: Decodable {
         case likedByUser = "liked_by_user"
     }
 }
-
-struct UrlsResult: Decodable {
-    let thumb: String
-    let full: String
-}
