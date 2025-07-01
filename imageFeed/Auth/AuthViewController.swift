@@ -21,7 +21,14 @@ final class AuthViewController: UIViewController {
         configureBackButton()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        print("viewWillAppear: AuthViewController")
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        print("AuthViewController: \(String(describing:segue.identifier))")
+        
         if segue.identifier == showWebViewSegueId {
             guard
                 let webViewViewController = segue.destination as? WebViewViewController
@@ -36,25 +43,42 @@ final class AuthViewController: UIViewController {
     }
     
     private func configureBackButton() {
-        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button") // 1
-        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "nav_back_button") // 2
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil) // 3
+        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button")
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "nav_back_button")
+        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack") // 4
     }
 }
 
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-
+        
+        print("AuthViewController.webViewViewController: code = \(code)")
+        
+        UIBlockingProgressHUD.show()
+        
         let authTokenFetched: (Result<String, Error>) -> Void = { result in
-            switch result {
-            case .success(let token):
-
-                OAuth2TokenStorage.shared.token = token
-                self.switchToTabBarController()
-
-            case .failure(let error):
-                print("Ошибка: \(error)")
+            DispatchQueue.main.async {
+                
+                print("AuthViewController.authTokenFetched")
+                UIBlockingProgressHUD.dismiss()
+                
+                switch result {
+                    case .success(let token):
+                        OAuth2TokenStorage.shared.token = token
+                        self.switchToTabBarController()
+                    case .failure(let error):
+                        print("Ошибка: \(error)")
+                        
+                        // Показ UIAlertController с ошибкой
+                        let alert = UIAlertController(
+                            title: "Что-то пошло не так(",
+                            message: "Не удалось войти в систему",
+                            preferredStyle: .alert
+                        )
+                        alert.addAction(UIAlertAction(title: "Ок", style: .default, handler: nil))
+                        self.present(alert, animated: true)
+                    }
             }
         }
         
@@ -67,6 +91,7 @@ extension AuthViewController: WebViewViewControllerDelegate {
     }
     
     private func switchToTabBarController() {
+        print("AuthViewController.switchToTabBarController")
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.windows.first else
             {

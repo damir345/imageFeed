@@ -9,30 +9,70 @@ import UIKit
 
 final class SplashViewController: UIViewController {
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthenticationScreen"
-
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .ypBlack
+        
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "LaunchScreen")
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(imageView)
+        
+        NSLayoutConstraint.activate([
+        imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        //UserDefaults.standard.removeObject(forKey: "accessToken")
 
+//        Этот код используется в режиме отладки для проверки функции авторизации,
+//        поэтому я оставил его здесь в комментарии
+//
+//        if SplashScreenCallsCounter.shared.callsCounter == 0 {
+//            OAuth2TokenStorage.shared.clearToken()
+//        }
+//        SplashScreenCallsCounter.shared.callsCounter += 1
+        
         if OAuth2TokenStorage.shared.token != nil {
             switchToTabBarController()
         } else {
             // Show Auth Screen
-            performSegue(withIdentifier: showAuthenticationScreenSegueIdentifier, sender: nil)
+            let storyboard = UIStoryboard(name: "Main", bundle: .main)
+            guard let viewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else {
+                assertionFailure("Failed to instantiate AuthViewController from storyboard")
+                return
+            }
+            viewController.delegate = self
+            viewController.modalPresentationStyle = .fullScreen
+            self.present(viewController, animated: true)
+            
         }
+        guard let token = OAuth2TokenStorage.shared.token else {
+            return
+        }
+        
+        fetchProfile(token)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setNeedsStatusBarAppearanceUpdate()
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+    }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
-    private func switchToTabBarController() {
+    func switchToTabBarController() {
         guard let window = UIApplication.shared.windows.first else
         {
             assertionFailure("Invalid Configuration")
@@ -43,20 +83,6 @@ final class SplashViewController: UIViewController {
         window.rootViewController = tabBarController
     }
     
-}
-
-extension SplashViewController {
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuthenticationScreenSegueIdentifier {
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers[0] as? AuthViewController
-            else { fatalError("Failed to prepare for \(showAuthenticationScreenSegueIdentifier)") }
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-    }
 }
 
 extension SplashViewController: AuthViewControllerDelegate {
@@ -74,7 +100,7 @@ extension SplashViewController: AuthViewControllerDelegate {
             case .success:
                 self.switchToTabBarController()
             case .failure:
-                // TODO [Sprint 11]
+                print("FetchOauthToken error")
                 break
             }
         }
