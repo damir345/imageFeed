@@ -11,15 +11,18 @@ import UIKit
 final class ImagesListService {
     static let shared = ImagesListService()
     static let didChangeNotification = Notification.Name("ImagesListServiceDidChange")
-    
+
     private(set) var photos: [Photo] = []
     private var lastLoadedPage: Int?
     private var isLoading: Bool = false
     private let perPage = 10
     private let session = URLSession.shared
+
     private var accessToken: String? {
         OAuth2TokenStorage.shared.token
     }
+
+    static let isoDateFormatter = ISO8601DateFormatter()
 
     private init() {}
 
@@ -29,7 +32,7 @@ final class ImagesListService {
 
         let nextPage = (lastLoadedPage ?? 0) + 1
 
-        var components = URLComponents(string: "https://api.unsplash.com/photos")
+        var components = URLComponents(url: Constants.photosURL, resolvingAgainstBaseURL: false)
         components?.queryItems = [
             URLQueryItem(name: "page", value: "\(nextPage)"),
             URLQueryItem(name: "per_page", value: "\(perPage)")
@@ -66,22 +69,10 @@ final class ImagesListService {
 
             do {
                 let decoder = JSONDecoder()
-                //decoder.keyDecodingStrategy = .convertFromSnakeCase
                 let photoResults = try decoder.decode([PhotoResult].self, from: data)
 
-                let newPhotos: [Photo] = photoResults.map { result in
-                    let size = CGSize(width: result.width, height: result.height)
-                    let createdAtDate = ISO8601DateFormatter().date(from: result.createdAt ?? "")
-                    return Photo(
-                        id: result.id,
-                        size: size,
-                        createdAt: createdAtDate,
-                        welcomeDescription: result.description,
-                        thumbImageURL: result.urls.thumb,
-                        largeImageURL: result.urls.full,
-                        isLiked: result.likedByUser
-                    )
-                }
+                // Используем инициализатор из расширения
+                let newPhotos = photoResults.map(Photo.init)
 
                 DispatchQueue.main.async {
                     self.photos.append(contentsOf: newPhotos)
@@ -108,12 +99,7 @@ final class ImagesListService {
             return
         }
 
-        let urlString = "https://api.unsplash.com/photos/\(photoId)/like"
-        guard let url = URL(string: urlString) else {
-            print("[ImagesListService.changeLike]: badURL photoId=\(photoId)")
-            completion(.failure(NSError(domain: "BadURL", code: 400, userInfo: nil)))
-            return
-        }
+        let url = Constants.likePhotoURL(for: photoId)
 
         var request = URLRequest(url: url)
         request.httpMethod = isLike ? "POST" : "DELETE"
@@ -164,5 +150,7 @@ final class ImagesListService {
         task.resume()
     }
 }
+
+
 
 

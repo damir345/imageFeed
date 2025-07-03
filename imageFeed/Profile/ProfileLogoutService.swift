@@ -14,39 +14,36 @@ final class ProfileLogoutService {
 
     private init() { }
 
-    func logout() {
-        // Удаляем сохранённый токен
+    func logout(completion: @escaping () -> Void) {
         OAuth2TokenStorage.shared.clearToken()
 
-        // Очищаем куки и данные WebView
-        cleanCookies()
+        cleanCookies {
+            ProfileService.shared.reset()
+            ProfileImageService.shared.reset()
+            ImagesListService.shared.reset()
 
-        // Сбрасываем сервисы
-        ProfileService.shared.reset()
-        ProfileImageService.shared.reset()
-        ImagesListService.shared.reset()
-
-        // Переход на начальный экран
-        switchToSplashViewController()
-    }
-
-    private func cleanCookies() {
-        // Удаляем HTTP-куки
-        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-
-        // Удаляем данные WebView
-        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-            records.forEach { record in
-                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
+            DispatchQueue.main.async {
+                completion()
             }
         }
     }
 
-    private func switchToSplashViewController() {
-        guard let window = UIApplication.shared.windows.first else { return }
+    private func cleanCookies(completion: @escaping () -> Void) {
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
 
-        let splashVC = SplashViewController()
-        window.rootViewController = splashVC
-        window.makeKeyAndVisible()
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            let group = DispatchGroup()
+
+            for record in records {
+                group.enter()
+                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record]) {
+                    group.leave()
+                }
+            }
+
+            group.notify(queue: .main) {
+                completion()
+            }
+        }
     }
 }

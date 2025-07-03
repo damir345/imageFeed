@@ -142,18 +142,29 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+    private func switchToSplashViewController() {
+        guard let window = UIApplication.shared.windows.first else { return }
+
+        let splashVC = SplashViewController()
+        window.rootViewController = splashVC
+        window.makeKeyAndVisible()
+    }
+    
     @objc private func logoutButtonTapped() {
         let alert = UIAlertController(
-            title: "До свидания!",
+            title: "Пока, пока!",
             message: "Уверены, что хотите выйти?",
             preferredStyle: .alert
         )
-        
-        alert.addAction(UIAlertAction(title: "Нет", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Да", style: .destructive) { _ in
-            ProfileLogoutService.shared.logout()
+
+        alert.addAction(UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            ProfileLogoutService.shared.logout {
+                self?.switchToSplashViewController()
+            }
         })
-        
+
+        alert.addAction(UIAlertAction(title: "Нет", style: .default))
+
         present(alert, animated: true)
     }
 }

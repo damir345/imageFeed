@@ -60,7 +60,7 @@ final class ImagesListCell: UITableViewCell {
         likeButton.setImage(UIImage(named: imageName), for: .normal)
     }
 
-    @IBAction func likeButtonClicked(_ sender: UIButton) {
+    @IBAction private func likeButtonClicked(_ sender: UIButton) {
         delegate?.imageListCellDidTapLike(self)
     }
     

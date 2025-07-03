@@ -15,4 +15,12 @@ enum Constants {
     static let defaultBaseURL = URL(string: "https://api.unsplash.com")!
     static let getUsernameURL = "https://api.unsplash.com/users/"
     static let oauthAuthorizePath = "/oauth/authorize/native"
+    
+    static var photosURL: URL {
+        defaultBaseURL.appendingPathComponent("photos")
+    }
+    
+    static func likePhotoURL(for photoId: String) -> URL {
+        defaultBaseURL.appendingPathComponent("photos/\(photoId)/like")
+    }
 }
