@@ -66,6 +66,8 @@ final class ProfileViewController: UIViewController {
         self.loginLabel.text = ProfileService.shared.profile?.loginName
         self.descriptionLabel.text = ProfileService.shared.profile?.bio
         
+        logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
+        
         let urlForImage = String(describing: ProfileImageService.shared.avatarURL)
         print("Image URL = \(urlForImage)")
         
@@ -138,5 +140,31 @@ final class ProfileViewController: UIViewController {
             logoutButton.widthAnchor.constraint(equalToConstant: 24),
             logoutButton.heightAnchor.constraint(equalToConstant: 24)
         ])
+    }
+    
+    private func switchToSplashViewController() {
+        guard let window = UIApplication.shared.windows.first else { return }
+
+        let splashVC = SplashViewController()
+        window.rootViewController = splashVC
+        window.makeKeyAndVisible()
+    }
+    
+    @objc private func logoutButtonTapped() {
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            ProfileLogoutService.shared.logout {
+                self?.switchToSplashViewController()
+            }
+        })
+
+        alert.addAction(UIAlertAction(title: "Нет", style: .default))
+
+        present(alert, animated: true)
     }
 }
