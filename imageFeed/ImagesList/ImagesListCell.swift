@@ -39,29 +39,28 @@ final class ImagesListCell: UITableViewCell {
             uploadDate.text = ""
         }
 
-        // Устанавливаем картинку с Kingfisher и анимацией
+        // Загружаем изображение
         myImageView.kf.indicatorType = .activity
         if let url = URL(string: photo.thumbImageURL) {
-            myImageView.kf.setImage(
-                with: url,
-                placeholder: UIImage(named: "placeholder")
-            ) { [weak self] _ in
-                self?.setNeedsLayout() // Чтобы обновить высоту ячейки, если нужно
+            myImageView.kf.setImage(with: url, placeholder: UIImage(named: "placeholder")) { [weak self] _ in
+                self?.setNeedsLayout()
             }
         }
 
-        // Обновляем состояние кнопки like, если используется
-        let likeImageName = photo.isLiked ? "like_active" : "like_inactive"
-        likeButton.setImage(UIImage(named: likeImageName), for: .normal)
+        // Обновляем состояние кнопки
+        setIsLiked(photo.isLiked)
     }
     
     func setIsLiked(_ isLiked: Bool) {
         let imageName = isLiked ? "LikeButtonOn" : "LikeButtonOff"
         likeButton.setImage(UIImage(named: imageName), for: .normal)
+
+        likeButton.accessibilityIdentifier = "LikeButton"
+       
+        likeButton.accessibilityLabel = imageName
     }
 
     @IBAction private func likeButtonClicked(_ sender: UIButton) {
         delegate?.imageListCellDidTapLike(self)
     }
-    
 }

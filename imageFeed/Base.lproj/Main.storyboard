@@ -24,6 +24,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lI3-4B-PZm">
                                 <rect key="frame" x="35.5" y="732" width="343" height="48"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <accessibility key="accessibilityConfiguration" identifier="Authenticate"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="343" id="7hb-Te-nYa"/>
                                     <constraint firstAttribute="height" constant="48" id="jmz-Lk-peW"/>
@@ -63,7 +64,7 @@
         <!--Web View View Controller-->
         <scene sceneID="ZLZ-zC-tNy">
             <objects>
-                <viewController id="QYZ-YJ-g2G" customClass="WebViewViewController" customModule="imageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="WebViewViewController" id="QYZ-YJ-g2G" customClass="WebViewViewController" customModule="imageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="3g9-Ai-Kyc">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -134,6 +135,7 @@
                                                 </imageView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MBU-ry-qzd">
                                                     <rect key="frame" x="354" y="4" width="44" height="44"/>
+                                                    <accessibility key="accessibilityConfiguration" identifier="LikeButton"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="44" id="Cud-oR-Jnk"/>
                                                         <constraint firstAttribute="width" constant="44" id="P0F-E1-z32"/>
@@ -250,6 +252,7 @@
                             </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hEk-pS-ucc">
                                 <rect key="frame" x="8" y="8" width="48" height="48"/>
+                                <accessibility key="accessibilityConfiguration" identifier="NavBackButtonWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="48" id="4l0-CG-PIf"/>
                                     <constraint firstAttribute="height" constant="48" id="oNt-fi-tQy"/>
