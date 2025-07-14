@@ -27,7 +27,7 @@ class imageFeedUITests: XCTestCase {
         XCTAssertTrue(loginTextField.waitForExistence(timeout: 5))
         
         loginTextField.tap()
-        loginTextField.typeText("")
+        loginTextField.typeText("email")
         
         // Снять фокус с логина, чтобы закрыть клавиатуру
         let dismissCoordinate = webView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
@@ -52,7 +52,7 @@ class imageFeedUITests: XCTestCase {
         XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 3), "Клавиатура не появилась")
         
         // Ввод пароля
-        passwordTextField.typeText("")
+        passwordTextField.typeText("Password")
         
         // Скроллим до кнопки Login и тапаем
         webView.swipeUp()
@@ -67,42 +67,48 @@ class imageFeedUITests: XCTestCase {
     
     func testFeed() throws {
         let tablesQuery = app.tables
-        
-        let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
-        cell.swipeUp()
-        
-        sleep(2)
-        
-        let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 1)
-        
-        cellToLike.buttons["LikeButton"].tap()
-        cellToLike.buttons["LikeButton"].tap()
-        
-        sleep(2)
-        
+
+        tablesQuery.firstMatch.swipeUp()
+
+        let cellToLike = tablesQuery.cells.element(boundBy: 1)
+        XCTAssertTrue(cellToLike.waitForExistence(timeout: 5), "Ячейка не появилась")
+
+        // Лайк / анлайк
+        let likeButton = cellToLike.buttons["LikeButton"]
+        XCTAssertTrue(likeButton.waitForExistence(timeout: 2), "Кнопка Like не появилась")
+        likeButton.tap()
+        likeButton.tap()
+
+        // Открываем изображение в полный экран
         cellToLike.tap()
-        
-        sleep(3)
-        
+        sleep(2)
+
+        // Ожидаем появления изображения
         let image = app.scrollViews.images.element(boundBy: 0)
-        // Zoom in
-        image.pinch(withScale: 3, velocity: 1) // zoom in
-        // Zoom out
+        XCTAssertTrue(image.waitForExistence(timeout: 10), "Изображение не загрузилось")
+
+        // Зум
+        image.pinch(withScale: 3, velocity: 1)
         image.pinch(withScale: 0.5, velocity: -1)
-        
-        let navBackButtonWhiteButton = app.buttons["NavBackButtonWhite"]
-        navBackButtonWhiteButton.tap()
+
+        // Ожидаем появления кнопки "Назад"
+        let backButton = app.buttons["NavBackButtonWhite"]
+        XCTAssertTrue(backButton.waitForExistence(timeout: 5), "Кнопка 'Назад' не появилась")
+        backButton.tap()
     }
     
     func testProfile() throws {
         sleep(3)
         app.tabBars.buttons.element(boundBy: 1).tap()
        
-        XCTAssertTrue(app.staticTexts[""].exists)
-        XCTAssertTrue(app.staticTexts[""].exists)
+        XCTAssertTrue(app.staticTexts["Name Surname"].exists)
+        XCTAssertTrue(app.staticTexts["Username"].exists)
         
         app.buttons["logoutButton"].tap()
         
         app.alerts["Пока, пока!"].scrollViews.otherElements.buttons["Да"].tap()
+        
+        let loginButton = app.buttons["Войти"]
+        XCTAssertTrue(loginButton.waitForExistence(timeout: 5))
     }
 }
